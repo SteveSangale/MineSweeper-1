@@ -1,1 +1,118 @@
 
+using System;
+using System.IO;
+
+namespace minesweeper
+{
+	public class Board
+	{
+		// Attributes
+		private string _file;
+		private Cell[,] _cells;
+		private int _numRows;
+		private int _numCols;
+		private int _numCellsNoMines;
+		private int _numUncoveredCells;
+
+		// Methods
+		public Board()
+		{
+			// Default constructor
+			_file = "";
+			_numRows = 0;
+			_numCols = 0;
+			_numCellsNoMines = 0;
+			_numUncoveredCells = 0;
+		}
+
+		public Board(int nRows, int nCols, string fileName)
+		{
+			// Constructor with parameters
+			if (nRows > 0 && nCols > 0)
+			{
+				_file = fileName;
+				_numRows = nRows;
+				_numCols = nCols;
+				_numCellsNoMines = 0;
+				_numUncoveredCells = 0;
+
+				_cells = new Cell[_numRows, _numCols];
+			}
+			else Console.WriteLine ("Error: Rows and columns of the board need to be > 0");
+		}
+
+        public bool load(string fileName)
+        {
+            // Read the board from "fileName" and fill the _cells with its information
+            try
+            {
+                using (StreamReader sr = new StreamReader(fileName))
+                {
+                    int validLines = 0;
+                    int currentRow = 0;
+                    string line = sr.ReadLine();
+
+                    while(line != null)
+                    {
+                        if(validLines == 0)
+                        {
+                            int.TryParse(line, out _numRows);
+                            validLines++;
+                        }
+                        else if(validLines == 1)
+                        {
+                            int.TryParse(line, out _numCols);
+                            validLines++;
+                        }
+                        else
+                        {
+                            int currentCol = 0;
+                            for(int i = 0; i < line.Length; i++)
+                            {
+                                _cells[currentRow, currentCol] = new Cell(CellState.Covered, line[i]);
+                                currentCol++;
+                            }
+                            currentRow++;
+                        }
+                    }
+                    _cells = new Cell[_numRows, _numCols];
+                      
+                    while ((line = sr.ReadLine()) != null)
+                    {
+                        Console.WriteLine(line);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("The file could not be read");
+                Console.WriteLine(e.Message);
+                return false;
+            }
+            return true;
+
+                    // Update all the class attributes
+        }
+
+		public bool finished()
+		{
+			return (_numCellsNoMines == _numUncoveredCells);
+		}
+
+		public void print()
+		{
+            // Print the content of the board
+
+            for (int io = 0; io < _numRows; io++)
+            {
+                for (int k = 0; k < _numCols; k++)
+                {
+                    Console.Write(_cells[io, k]);
+                }
+                Console.WriteLine();
+            }
+            Console.ReadKey();
+		}
+    }
+}
+
